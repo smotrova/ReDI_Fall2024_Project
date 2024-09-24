@@ -22,4 +22,4 @@ __Data Analytics__ goals:
 
 __Machine Learning__ goals:
   * linear regression for salary prediction
-  * explore other regression models, feature importance, model deployment, regional models soft skills (presentation/communication, teamwork)
+  * explore other regression models, feature importance, model deployment, regional models
