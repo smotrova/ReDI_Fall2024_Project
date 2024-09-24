@@ -31,9 +31,9 @@
     │
     ├── features     <- Scripts to transform data from raw  
     |   |                  
-    │   └── qulitative_feature_selection.py
+    │   └── feature_selection.py
     |    |
-    |    └──feature_engeniiering.py
+    |    └──feature_engineering.py
     │
     ├── modelling  <- Scripts to train models and then use 
     |   |                  trained models to make predictions. 
