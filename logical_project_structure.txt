@@ -1,0 +1,47 @@
+│
+└──README.md
+│
+└──requirements.txt  <-  requirements for the analysis environment
+|                                          generated with `pip freeze > requirements.txt`
+│
+└──.gitignore        <- avoids uploading outputs, system files etc.
+│
+└──data
+	├──raw
+	├──processed
+
+│
+└──notebooks        <- Jupyter notebooks
+│
+└──models              <- Trained models
+│
+└──references         <- Data dictionaries, manuals, etc.
+│
+└──dashboard         <- streamlit app 
+│
+└── src                       <- Source code for use in this project.
+    ├── __init__.py    <- Makes src a Python module
+    │
+    ├── config.py    <- special paths and variables used across project 
+    │
+    ├── utils.py    <- functions used across project 
+    │
+    ├── data       <- Scripts for reading data
+    │   └── load_data.py
+    │
+    ├── features     <- Scripts to transform data from raw  
+    |   |                  
+    │   └── qulitative_feature_selection.py
+    |    |
+    |    └──feature_engeniiering.py
+    │
+    ├── modelling  <- Scripts to train models and then use 
+    |   |                  trained models to make predictions. 
+    │   └── train_model.py
+    │
+    ├── model_evaluation   <- model performance and model selection.
+    |   |                      
+    │   └── model_performance.py
+    │    
+    ├── …  
+    │   └── … .py
