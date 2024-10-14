@@ -149,6 +149,15 @@ def dataset_cleaned(df):
                     axis=1)
     df_cleaned = df_cleaned.drop_duplicates().dropna(subset=["ConvertedCompYearly"])
     
+    # delete records where `Employment` status "Retired" only and `CompYeraly` is indicated
+    fltr_retired = df_cleaned.Employment == "Retired"
+    df_cleaned = df_cleaned.loc[~fltr_retired]
+    
+    # delete records where `Employment` status is "Employed, full-time" 
+    # and current job, the one person does most of the time, is "Student"
+    fltr_student_fullTimeEmpl = (df_cleaned.DevType=="Student") & (df_cleaned.Employment=="Employed, full-time")
+    df_cleaned = df_cleaned.loc[~fltr_student_fullTimeEmpl]
+    
+    df_cleaned.reset_index(inplace=True, drop=True)
+    
     return df_cleaned
-
-
