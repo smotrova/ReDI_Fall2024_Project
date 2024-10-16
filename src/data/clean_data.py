@@ -40,6 +40,7 @@ def country_cleaned(df):
     
     if 'Country' in df.columns:
         Country = df.Country.apply(lambda x: 'Vietnam' if x=='Viet Nam' else x)
+        Country = df.Country.apply(lambda x: 'United Kingdom' if x=='United Kingdom of Great Britain and Northern Ireland' else x)
         return Country        
     else:
         return pd.Series(index=df.index, name="Country")
