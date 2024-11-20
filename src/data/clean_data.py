@@ -38,17 +38,60 @@ def employment_cleaned(df):
 
 def country_cleaned(df):
     
+    country_clean = {
+        'Czech Republic' : 'Czechia [Czech Republic]',
+        'France' : 'France [French Republic]',
+        'Hong Kong (S.A.R.)' : 'China, Hong Kong Special Administrative Region',
+        'Republic of Korea' : 'Republic of Korea [South Korea]',
+        'South Korea': 'Republic of Korea [South Korea]',
+        'Turkey':'Türkiye',
+        }
+        
+    # {
+    #     'Viet Nam':'Vietnam',
+    #     'United Kingdom of Great Britain and Northern Ireland':'UK',
+    #     'United States of America':'USA'
+    # }
+
     if 'Country' in df.columns:
-        Country = df.Country.apply(lambda x: 'Vietnam' if x=='Viet Nam' else x)
-        Country = df.Country.apply(lambda x: 'United Kingdom' if x=='United Kingdom of Great Britain and Northern Ireland' else x)
+        Country = df.Country.apply(lambda x: country_clean[x] if x in country_clean.keys() else x)
         return Country        
     else:
         return pd.Series(index=df.index, name="Country")
+    
+def region(ser):
+
+    regions = pd.read_html('https://en.wikipedia.org/wiki/List_of_countries_and_territories_by_the_United_Nations_geoscheme')
+    country_region = regions[0].set_index('Country or Area')['Geographical subregion'].to_dict()
+
+    Region =  ser.apply(lambda x: country_region[x] if x in country_region.keys() else None).rename('Region', inplace=True)
+    
+    return Region   
 
 def edlevel_cleaned(df):
+
+    # education_level = { 'Bachelor’s degree (B.A., B.S., B.Eng., etc.)' : 'Graduated',
+    # 'Some college/university study without earning a degree':'Non-graduated',
+    # 'Master’s degree (M.A., M.S., M.Eng., MBA, etc.)':'Graduated',
+    # 'Primary/elementary school':'Non-graduated',
+    # 'Professional degree (JD, MD, Ph.D, Ed.D, etc.)':'Graduated',
+    # 'Associate degree (A.A., A.S., etc.)':'Non-graduated',
+    # 'Secondary school (e.g. American high school, German Realschule or Gymnasium, etc.)':'Non-graduated',
+    # 'Something else':np.nan 
+    # }
+
+    education_level = { 'Bachelor’s degree (B.A., B.S., B.Eng., etc.)' : 'Bachelor',
+    'Some college/university study without earning a degree':'Non-graduated',
+    'Master’s degree (M.A., M.S., M.Eng., MBA, etc.)':'Master',
+    'Primary/elementary school':'Non-graduated',
+    'Professional degree (JD, MD, Ph.D, Ed.D, etc.)':'PhD',
+    'Associate degree (A.A., A.S., etc.)':'Non-graduated',
+    'Secondary school (e.g. American high school, German Realschule or Gymnasium, etc.)':'Non-graduated',
+    'Something else':np.nan 
+    }
     
     if 'EdLevel' in df.columns:
-        EdLevel = df.EdLevel
+        EdLevel = df.EdLevel.map(education_level)
         return EdLevel
     else:
         return pd.Series(index=df.index)
@@ -127,6 +170,14 @@ def workexp_cleaned(df):
     else:
         return pd.DataFrame(index=df.index, columns = ["WorkExp"])
 
+def devtype_cleaned(df):
+
+    if 'DevType' in df.columns:
+        DevType = df['DevType'].apply(lambda x: np.nan if x == 'Other (please specify):' else x)
+        return DevType
+    else:
+        return pd.DataFrame(index=df.index, columns = ["DevType"])
+
 def dataset_cleaned(df):
     
     MainBranch = mainbranch_cleaned(df)
@@ -134,11 +185,11 @@ def dataset_cleaned(df):
     Age = AgeYearsCode["Age"]
     Employment = employment_cleaned(df)
     RemoteWork = df["RemoteWork"]
-    EdLevel = edlevel_cleaned(df)
+    EdLevel = df.EdLevel
     YearsCode = AgeYearsCode["YearsCode"]
     YearsCodePro = AgeYearsCode["YearsCodePro"]
     LanguageHaveWorkedWith = df["LanguageHaveWorkedWith"]
-    DevType = df["DevType"]
+    DevType = devtype_cleaned(df)
     Country = country_cleaned(df)
     ConvertedCompYearly = df["ConvertedCompYearly"]
     ICorPM = df["ICorPM"]
@@ -159,6 +210,33 @@ def dataset_cleaned(df):
     fltr_student_fullTimeEmpl = (df_cleaned.DevType=="Student") & (df_cleaned.Employment=="Employed, full-time")
     df_cleaned = df_cleaned.loc[~fltr_student_fullTimeEmpl]
     
+    df_cleaned.reset_index(inplace=True, drop=True)
+    
+    return df_cleaned
+
+def dataset_cleaned1(df):
+        
+    AgeYearsCode = age_yearscode_cleaned(df)
+    EdLevel = edlevel_cleaned(df)
+    YearsCodePro = AgeYearsCode["YearsCodePro"]
+    LanguageHaveWorkedWith = df["LanguageHaveWorkedWith"]
+    DevType = devtype_cleaned(df)
+    Country = country_cleaned(df)
+    Region = region(Country)
+    ConvertedCompYearly = df["ConvertedCompYearly"]
+    ICorPM = df["ICorPM"]
+    WorkExp = workexp_cleaned(df)
+    Industry = df["Industry"]
+
+    # add a new feature number of programming languages
+
+    NLanguageHaveWorkedWith = df.LanguageHaveWorkedWith.str.split(";").apply(lambda x: len(x) if x==x else np.nan).rename("NLanguageHaveWorkedWith")
+    
+    df_cleaned = pd.concat([EdLevel, YearsCodePro, LanguageHaveWorkedWith, NLanguageHaveWorkedWith,
+                             DevType, Country, Region, ConvertedCompYearly, ICorPM, WorkExp, Industry],
+                    axis=1)
+    
+    df_cleaned = df_cleaned.drop_duplicates().dropna() #dropna(subset=["ConvertedCompYearly"])
     df_cleaned.reset_index(inplace=True, drop=True)
     
     return df_cleaned
