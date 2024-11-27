@@ -221,8 +221,8 @@ def dataset_cleaned1(df):
     YearsCodePro = AgeYearsCode["YearsCodePro"]
     LanguageHaveWorkedWith = df["LanguageHaveWorkedWith"]
     DevType = devtype_cleaned(df)
-    Country = country_cleaned(df)
-    Region = region(Country)
+    Country = df.Country
+    Region = region(country_cleaned(df))
     ConvertedCompYearly = df["ConvertedCompYearly"]
     ICorPM = df["ICorPM"]
     WorkExp = workexp_cleaned(df)
